@@ -1,23 +1,31 @@
 import React, { useEffect, useState } from "react";
 
 function InstallGate({ onDone }) {
-  const [prompt, setPrompt] = useState(null);
+  // index.html ka inline script event ko yahan pahunchne se pehle hi
+  // pakad chuka ho sakta hai -> pehle wahi check karo.
+  const [prompt, setPrompt] = useState(() => window.__bipEvent || null);
   const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
+    const take = () => {
+      if (window.__bipEvent) setPrompt(window.__bipEvent);
+    };
+    take(); // agar is beech mein aa gaya ho
+
+    const onReady = () => take(); // index.html se event
     const onPrompt = (e) => {
       e.preventDefault();
+      window.__bipEvent = e;
       setPrompt(e);
     };
+    const onInstalled = () => onDone();
 
-    const onInstalled = () => {
-      onDone();
-    };
-
+    window.addEventListener("bip-ready", onReady);
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
 
     return () => {
+      window.removeEventListener("bip-ready", onReady);
       window.removeEventListener("beforeinstallprompt", onPrompt);
       window.removeEventListener("appinstalled", onInstalled);
     };
@@ -33,6 +41,7 @@ function InstallGate({ onDone }) {
 
     const { outcome } = await prompt.userChoice;
 
+    window.__bipEvent = null;
     setPrompt(null);
 
     if (outcome === "accepted") {

@@ -15,6 +15,18 @@
     />
 
     <title>Ludo</title>
+
+    <script>
+      // beforeinstallprompt kabhi bhi fire ho sakta hai, React mount hone se
+      // pehle bhi. Isliye listener yahan turant lagate hain, React ke
+      // useEffect ka intezaar nahi karte, warna event miss ho jaata hai.
+      window.__bipEvent = null;
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        window.__bipEvent = e;
+        window.dispatchEvent(new Event("bip-ready"));
+      });
+    </script>
   </head>
 
   <body>

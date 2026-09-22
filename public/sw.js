@@ -1,4 +1,4 @@
-const CACHE_NAME = "ludo-cache-v1";
+const CACHE_NAME = "ludo-cache-v2";
 
 const STATIC_FILES = [
   "/",
@@ -36,16 +36,17 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const copy = response.clone();
-
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, copy);
-        });
+        // Sirf poore, successful (200) response cache karo.
+        // Video/audio jaisi files browser "Range" header se maangti hain,
+        // aur unka jawab 206 Partial Content hota hai — Cache API 206 ko
+        // reject kar deta hai, isliye use put() mein bhejna hi galat hai.
+        if (response.ok && response.status === 200) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
 
         return response;
       })
-      .catch(() => {
-        return caches.match(event.request);
-      })
+      .catch(() => caches.match(event.request))
   );
 });
