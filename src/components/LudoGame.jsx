@@ -112,6 +112,7 @@ export default function LudoGame({ players, onExit, onRematch }) {
     <section className="scr">
       <button className="back" onClick={onExit}>←</button>
       <div id="who" style={{ background: `var(--${COLORS[me.p]})` }}>{me.name} ki baari</div>
+      <DiceButton face={face} rolling={rolling} color={COLORS[me.p]} onClick={onRoll} />
       <div id="bw">
         <Board />
         {items.map((o) => {
@@ -129,6 +130,7 @@ export default function LudoGame({ players, onExit, onRematch }) {
         })}
       </div>
       <DiceButton face={face} rolling={rolling} color={COLORS[me.p]} onClick={onRoll} />
+      <div id="who" style={{ background: `var(--${COLORS[me.p]})` }}>{me.name} ki baari</div>
 
       {winner && (
         <div className="scr win">
